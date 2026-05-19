@@ -73,6 +73,7 @@ section {
     display: flex;
     flex-grow: 1;
     justify-content: space-between;
+    gap: var(--padding-xxl);
 }
 
 section .task-column {
@@ -83,6 +84,8 @@ section .task-column {
     display: flex;
     flex-direction: column;
     gap: var(--padding-m);
+    border-radius: var(--border-radius-m);
+    transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 section .task-column .heading {
@@ -111,5 +114,15 @@ section .task-column .task button {
     outline: none;
     background-color: var(--delete-color);
     color: var(--primary-text-color);
+}
+
+.board {
+    display: flex;
+    gap: var(--padding-m);
+}
+
+section .task-column.hover-over {
+    border: 2px dashed var(--primary-text-color);
+    scale: 1.02
 }
 
