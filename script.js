@@ -1,6 +1,7 @@
 const todoColumn = document.getElementById("todo");
 const tasks = document.querySelectorAll(".task");
 const taskColumns = document.querySelectorAll(".task-column");
+const countEls = document.querySelectorAll(".right");
 
 const toggleModalButton = document.getElementById("toggle-modal");
 const modal = document.querySelector(".modal");
@@ -49,10 +50,24 @@ function addDragEventsOnColumn(column) {
 
         e.target.appendChild(draggedElement);
         e.target.classList.remove("hover-over");
+
+        taskColumns.forEach((column) => {
+            countEachColumn(column);
+        })
     })
 };
 
-taskColumns.forEach((column) => addDragEventsOnColumn(column));
+function countEachColumn(column) {
+    const countEl = column.querySelector(".right");
+    const tasksEl = column.querySelectorAll(".task");
+
+    countEl.textContent = tasksEl.length;
+}
+
+taskColumns.forEach((column) => {
+    addDragEventsOnColumn(column);
+    countEachColumn(column);
+});
 
 // Modal related logic
 toggleModalButton.addEventListener("click", () => {
@@ -62,7 +77,6 @@ toggleModalButton.addEventListener("click", () => {
 modalBg.addEventListener("click", () => {
     modal.classList.remove("active")
 })
-
 
 addTaskBtn.addEventListener("click", () => {
     const titleEl = document.getElementById("title");
@@ -87,7 +101,9 @@ addTaskBtn.addEventListener("click", () => {
     deleteBtn.textContent = "Delete";
     deleteBtn.addEventListener("click", (e) => {
         e.preventDefault();
+        const columnElement = e.target.parentElement.parentElement;
         e.target.parentElement.remove();
+        countEachColumn(columnElement);
     })
 
     newTask.appendChild(deleteBtn)
@@ -99,13 +115,17 @@ addTaskBtn.addEventListener("click", () => {
 
         titleEl.value = "";
         descriptionEl.value = "";
+
+        countEachColumn(todoColumn);
     }
 });
 
 deleteBtns.forEach((deleteBtn) => {
     deleteBtn.addEventListener("click", (e) => {
         e.preventDefault();
+        const columnElement = e.target.parentElement.parentElement;
         e.target.parentElement.remove();
+        countEachColumn(columnElement);
     })
 });
 
