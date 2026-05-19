@@ -1,8 +1,16 @@
+const todoColumn = document.getElementById("todo");
 const tasks = document.querySelectorAll(".task");
 const taskColumns = document.querySelectorAll(".task-column");
 
+const toggleModalButton = document.getElementById("toggle-modal");
+const modal = document.querySelector(".modal");
+const modalBg = document.querySelector(".modal .bg");
+const addTaskBtn = document.getElementById("add-new-task");
+const deleteBtns = document.querySelectorAll(".task button");
+
 let draggedElement = null;
 
+// drag - An element is being dragged
 tasks.forEach((task) => {
     task.addEventListener("drag", () => {
         draggedElement = task;
@@ -12,7 +20,7 @@ tasks.forEach((task) => {
 function addDragEventsOnColumn(column) {
     // dragenter - A dragged element enters the drop target
     column.addEventListener("dragenter", (e) => {
-        e.target.classList.add("hover-over") 
+        e.target.classList.add("hover-over")
         // or column.classList.add(...)
     })
 
@@ -34,7 +42,7 @@ function addDragEventsOnColumn(column) {
     column.addEventListener("dragover", (e) => {
         e.preventDefault(); // Prevents the default behavior, which is to not allow dropping
     })
-    
+
     // drop - A dragged element is dropped on the target
     column.addEventListener("drop", (e) => {
         e.preventDefault() // Prevents browser from opening the dragged file/link
@@ -45,6 +53,63 @@ function addDragEventsOnColumn(column) {
 };
 
 taskColumns.forEach((column) => addDragEventsOnColumn(column));
+
+// Modal related logic
+toggleModalButton.addEventListener("click", () => {
+    modal.classList.toggle("active");
+})
+
+modalBg.addEventListener("click", () => {
+    modal.classList.remove("active")
+})
+
+
+addTaskBtn.addEventListener("click", () => {
+    const titleEl = document.getElementById("title");
+    const descriptionEl = document.getElementById("description");
+
+    const taskTitle = titleEl.value;
+    const taskDescription = descriptionEl.value;
+
+    const newTask = document.createElement("div");
+    newTask.classList.add("task");
+    newTask.draggable = true;
+    newTask.addEventListener("drag", () => {
+        draggedElement = newTask;
+    })
+
+    newTask.innerHTML = `
+        <h2>${taskTitle}</h2>
+        <p>${taskDescription}</p>
+    `;
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Delete";
+    deleteBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.target.parentElement.remove();
+    })
+
+    newTask.appendChild(deleteBtn)
+
+    if (taskTitle && taskDescription) {
+        todoColumn.appendChild(newTask);
+
+        modal.classList.remove("active");
+
+        titleEl.value = "";
+        descriptionEl.value = "";
+    }
+});
+
+deleteBtns.forEach((deleteBtn) => {
+    deleteBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.target.parentElement.remove();
+    })
+});
+
+
 
 
 
