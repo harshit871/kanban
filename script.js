@@ -11,6 +11,10 @@ const deleteBtns = document.querySelectorAll(".task button");
 
 let draggedElement = null;
 
+let taskData = {};
+
+const TASK_COLUMNS = "task-columns"
+
 // dragstart - A user starts to drag an element  It only fires exactly once when the user begins dragging the item, which is much better for performance.
 // drag - This event fires repeatedly while the item is being dragged
 tasks.forEach((task) => {
@@ -53,6 +57,7 @@ function addDragEventsOnColumn(column) {
         column.classList.remove("hover-over");
 
         taskColumns.forEach((c) => {
+            saveTasksToLocalStorage(c)
             countEachColumn(c);
         })
     })
@@ -67,7 +72,8 @@ function countEachColumn(column) {
 
 taskColumns.forEach((column) => {
     addDragEventsOnColumn(column);
-    countEachColumn(column);
+    loadTasksFromLocalStorage(column);
+    countEachColumn(column)
 });
 
 // Modal related logic
@@ -88,7 +94,7 @@ addTaskBtn.addEventListener("click", () => {
 
     if (!taskTitle || !taskDescription) {
         alert("Please fill out both title and description.");
-        return; 
+        return;
     }
 
     const newTask = document.createElement("div");
@@ -109,6 +115,7 @@ addTaskBtn.addEventListener("click", () => {
         e.preventDefault();
         const columnElement = e.target.parentElement.parentElement;
         e.target.parentElement.remove();
+        saveTasksToLocalStorage(columnElement);
         countEachColumn(columnElement);
     })
 
@@ -122,6 +129,7 @@ addTaskBtn.addEventListener("click", () => {
         titleEl.value = "";
         descriptionEl.value = "";
 
+        saveTasksToLocalStorage(todoColumn);
         countEachColumn(todoColumn);
     }
 });
@@ -131,11 +139,78 @@ deleteBtns.forEach((deleteBtn) => {
         e.preventDefault();
         const columnElement = e.target.parentElement.parentElement;
         e.target.parentElement.remove();
+        saveTasksToLocalStorage(columnElement)
         countEachColumn(columnElement);
     })
 });
 
+function saveTasksToLocalStorage(column) {
+    const tasks = column.querySelectorAll('.task'); // returns a NodeList(While a NodeList is "array-like" and has a .forEach() method, it lacks other Array prototype methods like .map(), .filter(), and .reduce())
+    // use spread or Array.from to convert to Array
 
+    taskData[column.id] = Array.from(tasks).map((t) => ({
+        title: t.querySelector("h2").innerText,
+        description: t.querySelector("p").innerText
+    }))
+
+    localStorage.setItem(TASK_COLUMNS, JSON.stringify(taskData))
+}
+
+function loadTasksFromLocalStorage(column) {
+    const storedTaskData = localStorage.getItem(TASK_COLUMNS);
+
+    if (storedTaskData) {
+        try {
+            taskData = JSON.parse(storedTaskData);
+
+            if (taskData[column.id] !== undefined) {
+                // Clear any existing default/rendered tasks in this column
+                const existingTasks = column.querySelectorAll(".task");
+                existingTasks.forEach(task => task.remove());
+
+                const tasks = taskData[column.id] || [];
+
+                tasks.forEach(taskObj => {
+                    const newTask = document.createElement("div");
+                    newTask.classList.add("task");
+                    newTask.draggable = true;
+
+                    // Add dragstart listener so loaded tasks can be dragged
+                    newTask.addEventListener("dragstart", () => {
+                        draggedElement = newTask;
+                    });
+
+                    newTask.innerHTML = `
+                        <h2>${taskObj.title}</h2>
+                        <p>${taskObj.description}</p>
+                    `;
+
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.textContent = "Delete";
+                    deleteBtn.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const columnElement = e.target.parentElement.parentElement;
+                        e.target.parentElement.remove();
+                        saveTasksToLocalStorage(columnElement);
+                        countEachColumn(columnElement);
+                    });
+
+                    newTask.appendChild(deleteBtn);
+                    column.appendChild(newTask);
+                });
+            } else {
+                // If this specific column is not yet in the stored taskData, save its current DOM tasks
+                saveTasksToLocalStorage(column);
+            }
+
+        } catch (error) {
+            console.error("Error loading tasks from localStorage:", error);
+        }
+    } else {
+        // If localStorage is empty, save the default tasks currently in the DOM for this column
+        saveTasksToLocalStorage(column);
+    }
+}
 
 
 
