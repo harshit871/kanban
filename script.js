@@ -11,9 +11,10 @@ const deleteBtns = document.querySelectorAll(".task button");
 
 let draggedElement = null;
 
-// drag - An element is being dragged
+// dragstart - A user starts to drag an element  It only fires exactly once when the user begins dragging the item, which is much better for performance.
+// drag - This event fires repeatedly while the item is being dragged
 tasks.forEach((task) => {
-    task.addEventListener("drag", () => {
+    task.addEventListener("dragstart", () => {
         draggedElement = task;
     })
 })
@@ -21,7 +22,7 @@ tasks.forEach((task) => {
 function addDragEventsOnColumn(column) {
     // dragenter - A dragged element enters the drop target
     column.addEventListener("dragenter", (e) => {
-        e.target.classList.add("hover-over")
+        column.classList.add("hover-over")
         // or column.classList.add(...)
     })
 
@@ -36,7 +37,7 @@ function addDragEventsOnColumn(column) {
 
     // dragleave - A dragged element leaves the drop target
     column.addEventListener("dragleave", (e) => {
-        e.target.classList.remove("hover-over")
+        column.classList.remove("hover-over")
     })
 
     // dragover - A dragged element is over the drop target
@@ -48,11 +49,11 @@ function addDragEventsOnColumn(column) {
     column.addEventListener("drop", (e) => {
         e.preventDefault() // Prevents browser from opening the dragged file/link
 
-        e.target.appendChild(draggedElement);
-        e.target.classList.remove("hover-over");
+        column.appendChild(draggedElement);
+        column.classList.remove("hover-over");
 
-        taskColumns.forEach((column) => {
-            countEachColumn(column);
+        taskColumns.forEach((c) => {
+            countEachColumn(c);
         })
     })
 };
@@ -82,13 +83,18 @@ addTaskBtn.addEventListener("click", () => {
     const titleEl = document.getElementById("title");
     const descriptionEl = document.getElementById("description");
 
-    const taskTitle = titleEl.value;
-    const taskDescription = descriptionEl.value;
+    const taskTitle = titleEl.value.trim();
+    const taskDescription = descriptionEl.value.trim();
+
+    if (!taskTitle || !taskDescription) {
+        alert("Please fill out both title and description.");
+        return; 
+    }
 
     const newTask = document.createElement("div");
     newTask.classList.add("task");
     newTask.draggable = true;
-    newTask.addEventListener("drag", () => {
+    newTask.addEventListener("dragstart", () => {
         draggedElement = newTask;
     })
 
