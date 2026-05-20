@@ -103,6 +103,11 @@ section .task-column .task {
     display: flex;
     flex-direction: column;
     gap: var(--padding-m);
+    transition: opacity 0.2s;
+}
+
+section .task-column .task.dragging {
+    opacity: 0.5;
 }
 
 section .task-column .task button {
@@ -145,7 +150,8 @@ section .task-column.hover-over {
     position: absolute;
     height: 100%;
     width: 100%;
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
 .modal .center {
@@ -155,26 +161,52 @@ section .task-column.hover-over {
     z-index: 10;
     background-color: var(--bg-button-color);
     padding: var(--padding-xxl);
-    border-radius: var(--border-radius-m);
+    border-radius: var(--border-radius-l);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    width: 90%;
+    max-width: 400px;
 }
 
 .modal .center input, .modal .center textarea {
     padding: var(--padding-m);
     border-radius: var(--border-radius-s);
-    border: none;
+    border: 1px solid transparent;
     outline: none;
     background-color: var(--bg-task-color);
     color: var(--primary-text-color);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.modal .center textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.modal .center input:focus, .modal .center textarea:focus {
+    border-color: var(--primary-text-color);
 }
 
 .modal .center button {
-    background-color:  var(--bg-button-color);
+    background-color: var(--primary-text-color);
+    color: var(--bg-color);
     border: none;
     outline: none;
-    color: var(--primary-text-color);
     padding: var(--padding-m) var(--padding-l);
     cursor: pointer;
     border-radius: var(--border-radius-m);
-    gap: var(--padding-xxl);
+    font-weight: 600;
+    font-size: 1rem;
+    margin-top: 10px;
+    transition: opacity 0.3s, transform 0.1s;
+}
+
+.modal .center button:hover {
+    opacity: 0.9;
+}
+
+.modal .center button:active {
+    transform: scale(0.98);
 }
 
